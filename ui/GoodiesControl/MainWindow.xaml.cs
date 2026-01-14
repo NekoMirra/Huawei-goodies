@@ -30,6 +30,7 @@ namespace GoodiesControl
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             ContextMenuRegistrar.EnsureRegistered();
+            _isTablet = TabletModeWatcher.GetCurrent();
             await QueryKeyboardStateAsync();
             _tabletWatcher.TabletModeChanged += TabletWatcher_TabletModeChanged;
             _tabletWatcher.Start();
@@ -107,7 +108,10 @@ namespace GoodiesControl
 
         private void UpdateTabletStatusText()
         {
-            TabletModeStatusText.Text = _isTablet ? "当前：平板模式" : "当前：桌面模式";
+            if (TabletModeStatusText != null)
+            {
+                TabletModeStatusText.Text = _isTablet ? "当前：平板模式" : "当前：桌面模式";
+            }
         }
 
         private async void QueryKeyboardButton_Click(object sender, RoutedEventArgs e)
@@ -246,7 +250,10 @@ namespace GoodiesControl
             ResetDisplayButton.IsEnabled = !isBusy;
             ApplyCustomLutButton.IsEnabled = !isBusy;
             ApplyChargeButton.IsEnabled = !isBusy;
-            scope.IsEnabled = !isBusy;
+            if (scope != null)
+            {
+                scope.IsEnabled = !isBusy;
+            }
         }
     }
 }

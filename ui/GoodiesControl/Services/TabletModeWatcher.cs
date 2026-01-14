@@ -11,6 +11,8 @@ namespace GoodiesControl.Services
 
         public event EventHandler<bool>? TabletModeChanged;
 
+        public bool Current => _lastIsTablet;
+
         public TabletModeWatcher()
         {
             _timer = new DispatcherTimer
@@ -18,13 +20,15 @@ namespace GoodiesControl.Services
                 Interval = TimeSpan.FromSeconds(2)
             };
             _timer.Tick += (_, __) => Poll();
+            _lastIsTablet = IsTabletMode();
         }
 
         public void Start()
         {
-            _lastIsTablet = IsTabletMode();
             _timer.Start();
         }
+
+        public static bool GetCurrent() => IsTabletMode();
 
         public void Dispose()
         {
