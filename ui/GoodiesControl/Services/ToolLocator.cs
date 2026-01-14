@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -16,7 +17,8 @@ namespace GoodiesControl.Services
 
         public string FindExecutable()
         {
-            var baseDir = AppContext.BaseDirectory;
+            // For single-file apps, AppContext.BaseDirectory points to the extraction path; we want the actual exe location
+            var baseDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule!.FileName) ?? AppContext.BaseDirectory;
             var ridOrder = RuntimeInformation.OSArchitecture == Architecture.Arm64
                 ? new[] { "win-arm64", "win-x64" }
                 : new[] { "win-x64", "win-arm64" };
