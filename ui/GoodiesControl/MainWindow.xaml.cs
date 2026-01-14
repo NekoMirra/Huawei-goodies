@@ -20,6 +20,7 @@ namespace GoodiesControl
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            ContextMenuRegistrar.EnsureRegistered();
             await QueryKeyboardStateAsync();
         }
 
