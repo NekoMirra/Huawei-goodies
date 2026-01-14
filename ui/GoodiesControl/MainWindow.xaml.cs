@@ -10,18 +10,49 @@ namespace GoodiesControl
         private readonly KeyboardService _keyboardService = new();
         private readonly QdcmCliService _qdcmService = new();
         private readonly ChargeLimitService _chargeService = new();
+        private readonly TabletModeWatcher _tabletWatcher = new();
+        private bool _isTablet;
 
         public MainWindow()
         {
             InitializeComponent();
             ChargeSlider.ValueChanged += (_, __) => ChargeValueText.Text = $"{(int)ChargeSlider.Value}%";
             Loaded += MainWindow_Loaded;
+            Unloaded += (_, __) => _tabletWatcher.Dispose();
         }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             ContextMenuRegistrar.EnsureRegistered();
             await QueryKeyboardStateAsync();
+            _tabletWatcher.TabletModeChanged += TabletWatcher_TabletModeChanged;
+            _tabletWatcher.Start();
+        }
+
+        private async void TabletWatcher_TabletModeChanged(object? sender, bool isTablet)
+        {
+            _isTablet = isTablet;
+            if (TabletGuardToggle.IsChecked == true)
+            {
+                if (isTablet)
+                {
+                    await GuardAsync(async () =>
+                    {
+                        KeyboardStatusText.Text = "检测到平板模式，正在禁用...";
+                        await _keyboardService.SetAsync(false);
+                        KeyboardStatusText.Text = "已因平板模式禁用";
+                    }, KeyboardStatusText);
+                }
+                else
+                {
+                    await GuardAsync(async () =>
+                    {
+                        KeyboardStatusText.Text = "退出平板模式，正在启用...";
+                        await _keyboardService.SetAsync(true);
+                        KeyboardStatusText.Text = "已启用";
+                    }, KeyboardStatusText);
+                }
+            }
         }
 
         private async void QueryKeyboardButton_Click(object sender, RoutedEventArgs e)

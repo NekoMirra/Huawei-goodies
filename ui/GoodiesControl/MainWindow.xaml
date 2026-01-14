@@ -19,6 +19,7 @@
                             <Button x:Name="EnableKeyboardButton" Content="启用" Width="90" Margin="0,0,8,0" Click="EnableKeyboardButton_Click"/>
                             <Button x:Name="DisableKeyboardButton" Content="禁用" Width="90" Click="DisableKeyboardButton_Click"/>
                         </StackPanel>
+                        <CheckBox x:Name="TabletGuardToggle" Content="平板模式时自动禁用键盘，恢复时自动启用" IsChecked="True" Margin="0,0,0,6"/>
                         <TextBlock x:Name="KeyboardStatusText" Text="状态未知" Margin="0,0,0,4"/>
                         <TextBlock Text="内部调用 kbd-detach，需随附 KeyboardService.dll" FontSize="12" Foreground="Gray"/>
                     </StackPanel>
