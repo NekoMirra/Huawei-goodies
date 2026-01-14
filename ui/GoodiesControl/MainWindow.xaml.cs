@@ -1,6 +1,7 @@
 using GoodiesControl.Services;
 using Microsoft.Win32;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace GoodiesControl
 {
