@@ -77,7 +77,7 @@ jobs:
         shell: pwsh
         working-directory: qdcm-loader
         run: |
-          dotnet publish QdcmLoader.csproj -c Release -r win-arm64 -p:SelfContained=true -p:PublishSingleFile=true -p:PublishAot=false -o "..\$env:DIST_DIR\qdcm-loader\win-arm64"
+          dotnet publish QdcmLoader.csproj -c Release -r win-arm64 -p:SelfContained=true -p:PublishSingleFile=false -p:PublishAot=false -o "..\$env:DIST_DIR\qdcm-loader\win-arm64"
 
       - name: Publish UI (arm64 single-file)
         shell: pwsh
