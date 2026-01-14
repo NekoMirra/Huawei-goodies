@@ -11,7 +11,7 @@ namespace GoodiesControl.Services
 
             await Task.Run(() =>
             {
-                using var scope = new ManagementScope(@"\\.\ROOT\WMI");
+                var scope = new ManagementScope(@"\\.\ROOT\WMI");
                 scope.Connect();
                 using var searcher = new ManagementObjectSearcher(scope, new SelectQuery("SELECT * FROM OemWMIMethod"));
                 foreach (ManagementObject obj in searcher.Get())
