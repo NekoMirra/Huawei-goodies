@@ -4,7 +4,7 @@ Alternative to Huawei PC Manager
 
 ## Usage
 
-```
+```text
 Usage: kbd-detach [-q]
   Queries current status
   -q: Use exit status instead of stdout
@@ -13,7 +13,7 @@ Usage: kbd-detach [enable|disable]
   Enables or disables detached keyboard support
 ```
 
-```
+```text
 Description:
   QDCM loader for Gaokun
 
@@ -39,5 +39,14 @@ PS C:\path\to\goodies>.\Set-ChargeLimit.ps1 -PercentageLimit 80
 
 Both kbd-detach and qdcm-loader depend on amd64 DLLs and are built targeting amd64/arm64ec.
 
+历史说明：此前没有 GUI，原因是 arm64ec 生态支持有限；现新增 WPF UI，仍需要对应架构的原生 DLL。
 
-No GUI yet because no modern GUI framework supports arm64ec.
+## UI（MatebookGoodies.exe）
+
+`ui/GoodiesControl` 提供一个轻量 WPF 前端，调用现有组件：
+
+- 键盘拆离：包装 `kbd-detach.exe`，可查询/启用/禁用。
+- 屏幕校色：包装 `qdcm-loader.exe`，支持官方预设、重置与自定义 LUT (`--igc` / `--3dlut`)。
+- 充电上限：直接使用 WMI 等效于 `Set-ChargeLimit.ps1`。
+
+> Windows on Arm 仍需要对应架构的原生 DLL（`KeyboardService.dll`、`qdcmlib.dll`）。UI 发布单文件时会优先使用 `tools/win-arm64`，缺失时回退 x64。

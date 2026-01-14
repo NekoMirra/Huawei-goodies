@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>MatebookGoodies</AssemblyName>
+    <RuntimeIdentifiers>win-arm64;win-x64</RuntimeIdentifiers>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <PublishTrimmed>false</PublishTrimmed>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="tools\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

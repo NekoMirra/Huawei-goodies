@@ -1,0 +1,87 @@
+name: build-and-package
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      DIST_DIR: dist
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Ensure dist folders
+        run: |
+          mkdir %DIST_DIR%\kbd-detach\x64
+          mkdir %DIST_DIR%\kbd-detach\arm64ec
+          mkdir %DIST_DIR%\qdcm-loader\win-x64
+          mkdir %DIST_DIR%\qdcm-loader\win-arm64
+          mkdir %DIST_DIR%\ui-arm64
+          mkdir %DIST_DIR%\ui-arm64\tools\win-arm64
+          mkdir %DIST_DIR%\ui-arm64\tools\win-x64
+
+      - name: Build kbd-detach (x64)
+        shell: cmd
+        run: |
+          call "%VSINSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat" amd64
+          cd kbd-detach
+          nmake /f makefile clean
+          nmake /f makefile
+          copy kbd-detach.exe ..\%DIST_DIR%\kbd-detach\x64\
+          copy KeyboardService.dll ..\%DIST_DIR%\kbd-detach\x64\
+
+      - name: Build kbd-detach (arm64ec)
+        shell: cmd
+        run: |
+          call "%VSINSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat" amd64_arm64ec
+          cd kbd-detach
+          nmake /f makefile clean
+          nmake /f makefile
+          copy kbd-detach.exe ..\%DIST_DIR%\kbd-detach\arm64ec\
+          copy KeyboardService.dll ..\%DIST_DIR%\kbd-detach\arm64ec\
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish qdcm-loader (x64 AOT)
+        run: |
+          cd qdcm-loader
+          dotnet publish -c Release -r win-x64 -p:PublishAot=true -p:SelfContained=true -p:PublishSingleFile=true -o ..\%DIST_DIR%\qdcm-loader\win-x64
+
+      - name: Publish qdcm-loader (arm64)
+        run: |
+          cd qdcm-loader
+          dotnet publish -c Release -r win-arm64 -p:SelfContained=true -p:PublishSingleFile=true -o ..\%DIST_DIR%\qdcm-loader\win-arm64
+
+      - name: Publish UI (arm64 single-file)
+        run: |
+          cd ui/GoodiesControl
+          dotnet publish -c Release -r win-arm64 -p:PublishSingleFile=true -p:SelfContained=true -o ..\..\%DIST_DIR%\ui-arm64
+
+      - name: Copy tools into UI bundle
+        shell: cmd
+        run: |
+          if not exist %DIST_DIR%\ui-arm64\tools\win-arm64 mkdir %DIST_DIR%\ui-arm64\tools\win-arm64
+          if not exist %DIST_DIR%\ui-arm64\tools\win-x64 mkdir %DIST_DIR%\ui-arm64\tools\win-x64
+          copy %DIST_DIR%\kbd-detach\arm64ec\kbd-detach.exe %DIST_DIR%\ui-arm64\tools\win-arm64\
+          copy %DIST_DIR%\kbd-detach\arm64ec\KeyboardService.dll %DIST_DIR%\ui-arm64\tools\win-arm64\
+          copy %DIST_DIR%\kbd-detach\x64\kbd-detach.exe %DIST_DIR%\ui-arm64\tools\win-x64\
+          copy %DIST_DIR%\kbd-detach\x64\KeyboardService.dll %DIST_DIR%\ui-arm64\tools\win-x64\
+          copy %DIST_DIR%\qdcm-loader\win-arm64\qdcm-loader.exe %DIST_DIR%\ui-arm64\tools\win-arm64\
+          copy %DIST_DIR%\qdcm-loader\win-arm64\qdcmlib.dll %DIST_DIR%\ui-arm64\tools\win-arm64\
+          copy %DIST_DIR%\qdcm-loader\win-x64\qdcm-loader.exe %DIST_DIR%\ui-arm64\tools\win-x64\
+          copy %DIST_DIR%\qdcm-loader\win-x64\qdcmlib.dll %DIST_DIR%\ui-arm64\tools\win-x64\
+
+      - name: Package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: goodies-binaries
+          path: dist
