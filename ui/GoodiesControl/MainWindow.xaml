@@ -20,6 +20,10 @@
                             <Button x:Name="DisableKeyboardButton" Content="禁用" Width="90" Click="DisableKeyboardButton_Click"/>
                         </StackPanel>
                         <CheckBox x:Name="TabletGuardToggle" Content="平板模式时自动禁用键盘，恢复时自动启用" IsChecked="True" Margin="0,0,0,6" Checked="TabletGuardToggle_Checked" Unchecked="TabletGuardToggle_Checked"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <Button x:Name="ToggleTabletButton" Content="一键切换平板模式" Width="160" Click="ToggleTabletButton_Click"/>
+                            <TextBlock x:Name="TabletModeStatusText" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
                         <TextBlock x:Name="KeyboardStatusText" Text="状态未知" Margin="0,0,0,4"/>
                         <TextBlock Text="内部调用 kbd-detach，需随附 KeyboardService.dll" FontSize="12" Foreground="Gray"/>
                     </StackPanel>

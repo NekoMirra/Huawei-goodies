@@ -12,6 +12,7 @@ namespace GoodiesControl
         private readonly ChargeLimitService _chargeService = new();
         private readonly TabletModeWatcher _tabletWatcher = new();
         private readonly KeyboardBlocker _keyboardBlocker = new();
+        private readonly TabletModeController _tabletController = new();
         private bool _isTablet;
 
         public MainWindow()
@@ -33,17 +34,35 @@ namespace GoodiesControl
             _tabletWatcher.TabletModeChanged += TabletWatcher_TabletModeChanged;
             _tabletWatcher.Start();
             await ApplyTabletGuardAsync(_isTablet);
+            UpdateTabletStatusText();
         }
 
         private async void TabletWatcher_TabletModeChanged(object? sender, bool isTablet)
         {
             _isTablet = isTablet;
             await ApplyTabletGuardAsync(isTablet);
+            UpdateTabletStatusText();
         }
 
         private async void TabletGuardToggle_Checked(object sender, RoutedEventArgs e)
         {
             await ApplyTabletGuardAsync(_isTablet);
+        }
+
+        private async void ToggleTabletButton_Click(object sender, RoutedEventArgs e)
+        {
+            var target = !_isTablet;
+            try
+            {
+                _tabletController.SetTabletMode(target);
+                _isTablet = target;
+                UpdateTabletStatusText();
+                await ApplyTabletGuardAsync(_isTablet);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "切换平板模式失败", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private async Task ApplyTabletGuardAsync(bool isTablet)
@@ -84,6 +103,11 @@ namespace GoodiesControl
                     }
                 }, KeyboardStatusText);
             }
+        }
+
+        private void UpdateTabletStatusText()
+        {
+            TabletModeStatusText.Text = _isTablet ? "当前：平板模式" : "当前：桌面模式";
         }
 
         private async void QueryKeyboardButton_Click(object sender, RoutedEventArgs e)
