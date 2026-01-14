@@ -11,6 +11,7 @@ namespace GoodiesControl
         private readonly QdcmCliService _qdcmService = new();
         private readonly ChargeLimitService _chargeService = new();
         private readonly TabletModeWatcher _tabletWatcher = new();
+        private readonly KeyboardBlocker _keyboardBlocker = new();
         private bool _isTablet;
 
         public MainWindow()
@@ -18,7 +19,11 @@ namespace GoodiesControl
             InitializeComponent();
             ChargeSlider.ValueChanged += (_, __) => ChargeValueText.Text = $"{(int)ChargeSlider.Value}%";
             Loaded += MainWindow_Loaded;
-            Unloaded += (_, __) => _tabletWatcher.Dispose();
+            Unloaded += (_, __) =>
+            {
+                _tabletWatcher.Dispose();
+                _keyboardBlocker.Dispose();
+            };
         }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -27,31 +32,57 @@ namespace GoodiesControl
             await QueryKeyboardStateAsync();
             _tabletWatcher.TabletModeChanged += TabletWatcher_TabletModeChanged;
             _tabletWatcher.Start();
+            await ApplyTabletGuardAsync(_isTablet);
         }
 
         private async void TabletWatcher_TabletModeChanged(object? sender, bool isTablet)
         {
             _isTablet = isTablet;
-            if (TabletGuardToggle.IsChecked == true)
+            await ApplyTabletGuardAsync(isTablet);
+        }
+
+        private async void TabletGuardToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            await ApplyTabletGuardAsync(_isTablet);
+        }
+
+        private async Task ApplyTabletGuardAsync(bool isTablet)
+        {
+            if (TabletGuardToggle.IsChecked == true && isTablet)
             {
-                if (isTablet)
+                // 屏蔽键盘输入（即便硬件仍连接）
+                _keyboardBlocker.Start();
+                // 尝试调用驱动层禁用（若可分离仍生效，若不可分离则忽略错误）
+                await GuardAsync(async () =>
                 {
-                    await GuardAsync(async () =>
+                    KeyboardStatusText.Text = "检测到平板模式，正在禁用...";
+                    try
                     {
-                        KeyboardStatusText.Text = "检测到平板模式，正在禁用...";
                         await _keyboardService.SetAsync(false);
                         KeyboardStatusText.Text = "已因平板模式禁用";
-                    }, KeyboardStatusText);
-                }
-                else
-                {
-                    await GuardAsync(async () =>
+                    }
+                    catch
                     {
-                        KeyboardStatusText.Text = "退出平板模式，正在启用...";
+                        KeyboardStatusText.Text = "已屏蔽键盘输入 (平板模式)";
+                    }
+                }, KeyboardStatusText);
+            }
+            else
+            {
+                _keyboardBlocker.Stop();
+                await GuardAsync(async () =>
+                {
+                    KeyboardStatusText.Text = "恢复键盘...";
+                    try
+                    {
                         await _keyboardService.SetAsync(true);
                         KeyboardStatusText.Text = "已启用";
-                    }, KeyboardStatusText);
-                }
+                    }
+                    catch
+                    {
+                        KeyboardStatusText.Text = "键盘输入已恢复";
+                    }
+                }, KeyboardStatusText);
             }
         }
 
