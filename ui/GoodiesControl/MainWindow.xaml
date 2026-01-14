@@ -3,23 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Matebook E Go Goodies" Height="540" Width="720" MinHeight="480" MinWidth="640">
     <Grid Margin="12">
-        <TabControl>
-            <TabItem Header="键盘拆离">
-                <StackPanel Margin="12">
-                    <TextBlock Text="控制键盘拆离功能" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Button x:Name="QueryKeyboardButton" Content="查询状态" Width="90" Margin="0,0,8,0" Click="QueryKeyboardButton_Click"/>
-                        <Button x:Name="EnableKeyboardButton" Content="启用" Width="90" Margin="0,0,8,0" Click="EnableKeyboardButton_Click"/>
-                        <Button x:Name="DisableKeyboardButton" Content="禁用" Width="90" Click="DisableKeyboardButton_Click"/>
-                    </StackPanel>
-                    <TextBlock x:Name="KeyboardStatusText" Text="状态未知" Margin="0,8,0,4"/>
-                    <TextBlock Text="内部调用 kbd-detach，需随附 KeyboardService.dll" FontSize="12" Foreground="Gray"/>
-                </StackPanel>
-            </TabItem>
-            <TabItem Header="屏幕校色 (QDCM)">
-                <ScrollViewer Margin="12">
+        <Grid.LayoutTransform>
+            <!-- 默认 1.5x 缩放以匹配 Windows 缩放习惯 -->
+            <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+        </Grid.LayoutTransform>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- 键盘拆离 -->
+                <Border BorderBrush="#DDD" BorderThickness="1" Padding="12" CornerRadius="6" Margin="0,0,0,12">
                     <StackPanel>
-                        <TextBlock Text="一键应用官方预设或自定义 LUT" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <TextBlock Text="键盘拆离" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button x:Name="QueryKeyboardButton" Content="查询状态" Width="90" Margin="0,0,8,0" Click="QueryKeyboardButton_Click"/>
+                            <Button x:Name="EnableKeyboardButton" Content="启用" Width="90" Margin="0,0,8,0" Click="EnableKeyboardButton_Click"/>
+                            <Button x:Name="DisableKeyboardButton" Content="禁用" Width="90" Click="DisableKeyboardButton_Click"/>
+                        </StackPanel>
+                        <TextBlock x:Name="KeyboardStatusText" Text="状态未知" Margin="0,0,0,4"/>
+                        <TextBlock Text="内部调用 kbd-detach，需随附 KeyboardService.dll" FontSize="12" Foreground="Gray"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 屏幕校色 (QDCM) -->
+                <Border BorderBrush="#DDD" BorderThickness="1" Padding="12" CornerRadius="6" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="屏幕校色 (QDCM)" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8"/>
                         <WrapPanel ItemWidth="120" ItemHeight="36" MinHeight="36" HorizontalAlignment="Left" Orientation="Horizontal" Margin="0,0,0,8">
                             <Button x:Name="ApplyP3Button" Content="Display P3" Width="120" Margin="0,0,8,8" Click="ApplyP3Button_Click"/>
                             <Button x:Name="ApplySrgbButton" Content="sRGB" Width="120" Margin="0,0,8,8" Click="ApplySrgbButton_Click"/>
@@ -44,20 +52,22 @@
                         <TextBlock x:Name="QdcmStatusText" Text="等待操作" Margin="0,8,0,4"/>
                         <TextBlock Text="需要 qdcm-loader 及 qdcmlib.dll 对应架构" FontSize="12" Foreground="Gray"/>
                     </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-            <TabItem Header="电池充电限制">
-                <StackPanel Margin="12">
-                    <TextBlock Text="设置充电上限 (50-100%)" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Slider x:Name="ChargeSlider" Minimum="50" Maximum="100" Value="80" Width="240" TickFrequency="5" IsSnapToTickEnabled="True" Margin="0,0,8,0"/>
-                        <TextBlock x:Name="ChargeValueText" Text="80%" Width="60" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <Button x:Name="ApplyChargeButton" Content="应用" Width="90" Click="ApplyChargeButton_Click"/>
+                </Border>
+
+                <!-- 电池充电限制 -->
+                <Border BorderBrush="#DDD" BorderThickness="1" Padding="12" CornerRadius="6" Margin="0,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="电池充电限制" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Slider x:Name="ChargeSlider" Minimum="50" Maximum="100" Value="80" Width="240" TickFrequency="5" IsSnapToTickEnabled="True" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="ChargeValueText" Text="80%" Width="60" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <Button x:Name="ApplyChargeButton" Content="应用" Width="90" Click="ApplyChargeButton_Click"/>
+                        </StackPanel>
+                        <TextBlock Text="【如提示拒绝访问请使用管理员身份运行】内部调用 WMI OemWMIfun，与 Set-ChargeLimit.ps1 逻辑一致" FontSize="12" Foreground="Gray" Margin="0,8,0,4"/>
+                        <TextBlock x:Name="ChargeStatusText" Text="尚未设置"/>
                     </StackPanel>
-                    <TextBlock Text="内部调用 WMI OemWMIfun，与 Set-ChargeLimit.ps1 逻辑一致" FontSize="12" Foreground="Gray" Margin="0,8,0,4"/>
-                    <TextBlock x:Name="ChargeStatusText" Text="尚未设置"/>
-                </StackPanel>
-            </TabItem>
-        </TabControl>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Window>

@@ -15,11 +15,22 @@ namespace GoodiesControl
         {
             InitializeComponent();
             ChargeSlider.ValueChanged += (_, __) => ChargeValueText.Text = $"{(int)ChargeSlider.Value}%";
+            Loaded += MainWindow_Loaded;
+        }
+
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            await QueryKeyboardStateAsync();
         }
 
         private async void QueryKeyboardButton_Click(object sender, RoutedEventArgs e)
         {
-            await GuardAsync(async () =>
+            await QueryKeyboardStateAsync();
+        }
+
+        private Task QueryKeyboardStateAsync()
+        {
+            return GuardAsync(async () =>
             {
                 KeyboardStatusText.Text = "查询中...";
                 var state = await _keyboardService.QueryAsync();
