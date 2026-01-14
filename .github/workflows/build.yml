@@ -95,8 +95,10 @@ jobs:
           copy %DIST_DIR%\kbd-detach\x64\kbd-detach.exe %DIST_DIR%\ui-arm64\tools\win-x64\
           copy %DIST_DIR%\kbd-detach\x64\KeyboardService.dll %DIST_DIR%\ui-arm64\tools\win-x64\
           copy %DIST_DIR%\qdcm-loader\win-arm64\qdcm-loader.exe %DIST_DIR%\ui-arm64\tools\win-arm64\
+          copy %DIST_DIR%\qdcm-loader\win-arm64\qdcm-loader.dll %DIST_DIR%\ui-arm64\tools\win-arm64\
           copy %DIST_DIR%\qdcm-loader\win-arm64\qdcmlib.dll %DIST_DIR%\ui-arm64\tools\win-arm64\
           copy %DIST_DIR%\qdcm-loader\win-x64\qdcm-loader.exe %DIST_DIR%\ui-arm64\tools\win-x64\
+          copy %DIST_DIR%\qdcm-loader\win-x64\qdcm-loader.dll %DIST_DIR%\ui-arm64\tools\win-x64\
           copy %DIST_DIR%\qdcm-loader\win-x64\qdcmlib.dll %DIST_DIR%\ui-arm64\tools\win-x64\
 
       - name: Package artifacts
