@@ -68,19 +68,22 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Publish qdcm-loader (x64 AOT)
+        shell: pwsh
         working-directory: qdcm-loader
         run: |
-          dotnet publish QdcmLoader.csproj -c Release -r win-x64 -p:PublishAot=true -p:SelfContained=true -p:PublishSingleFile=false -o ..\%DIST_DIR%\qdcm-loader\win-x64
+          dotnet publish QdcmLoader.csproj -c Release -r win-x64 -p:PublishAot=true -p:SelfContained=true -p:PublishSingleFile=false -o "..\$env:DIST_DIR\qdcm-loader\win-x64"
 
       - name: Publish qdcm-loader (arm64)
+        shell: pwsh
         working-directory: qdcm-loader
         run: |
-          dotnet publish QdcmLoader.csproj -c Release -r win-arm64 -p:SelfContained=true -p:PublishSingleFile=true -p:PublishAot=false -o ..\%DIST_DIR%\qdcm-loader\win-arm64
+          dotnet publish QdcmLoader.csproj -c Release -r win-arm64 -p:SelfContained=true -p:PublishSingleFile=true -p:PublishAot=false -o "..\$env:DIST_DIR\qdcm-loader\win-arm64"
 
       - name: Publish UI (arm64 single-file)
+        shell: pwsh
         working-directory: ui/GoodiesControl
         run: |
-          dotnet publish GoodiesControl.csproj -c Release -r win-arm64 -p:PublishSingleFile=true -p:SelfContained=true -o ..\..\%DIST_DIR%\ui-arm64
+          dotnet publish GoodiesControl.csproj -c Release -r win-arm64 -p:PublishSingleFile=true -p:SelfContained=true -o "..\..\$env:DIST_DIR\ui-arm64"
 
       - name: Copy tools into UI bundle
         shell: cmd
