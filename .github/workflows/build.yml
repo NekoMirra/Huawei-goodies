@@ -34,8 +34,9 @@ jobs:
             "$d/kbd-detach/arm64ec",
             "$d/qdcm-loader/win-x64",
             "$d/qdcm-loader/win-arm64",
-            "$d/ui-arm64/tools/win-arm64",
-            "$d/ui-arm64/tools/win-x64"
+            "ui/GoodiesControl/tools/win-arm64",
+            "ui/GoodiesControl/tools/win-x64",
+            "$d/ui-arm64"
           )
           foreach ($p in $paths) { New-Item -ItemType Directory -Path $p -Force | Out-Null }
 
@@ -79,27 +80,22 @@ jobs:
         run: |
           dotnet publish QdcmLoader.csproj -c Release -r win-arm64 -p:SelfContained=true -p:PublishSingleFile=false -p:PublishAot=false -o "..\$env:DIST_DIR\qdcm-loader\win-arm64"
 
+      - name: Stage tools into UI project
+        shell: pwsh
+        run: |
+          Copy-Item "$env:DIST_DIR/kbd-detach/arm64ec/*" "ui/GoodiesControl/tools/win-arm64" -Recurse -Force
+          Copy-Item "$env:DIST_DIR/kbd-detach/x64/*" "ui/GoodiesControl/tools/win-x64" -Recurse -Force
+          Copy-Item "$env:DIST_DIR/qdcm-loader/win-arm64/*" "ui/GoodiesControl/tools/win-arm64" -Recurse -Force
+          Copy-Item "$env:DIST_DIR/qdcm-loader/win-x64/*" "ui/GoodiesControl/tools/win-x64" -Recurse -Force
+
       - name: Publish UI (arm64 single-file)
         shell: pwsh
         working-directory: ui/GoodiesControl
         run: |
           dotnet publish GoodiesControl.csproj -c Release -r win-arm64 -p:PublishSingleFile=true -p:SelfContained=true -o "..\..\$env:DIST_DIR\ui-arm64"
 
-      - name: Copy tools into UI bundle
-        shell: pwsh
-        run: |
-          $root = "$env:DIST_DIR/ui-arm64/tools"
-          New-Item -ItemType Directory -Force -Path "$root/win-arm64" | Out-Null
-          New-Item -ItemType Directory -Force -Path "$root/win-x64" | Out-Null
-
-          Copy-Item "$env:DIST_DIR/kbd-detach/arm64ec/*" "$root/win-arm64" -Recurse -Force
-          Copy-Item "$env:DIST_DIR/kbd-detach/x64/*" "$root/win-x64" -Recurse -Force
-
-          Copy-Item "$env:DIST_DIR/qdcm-loader/win-arm64/*" "$root/win-arm64" -Recurse -Force
-          Copy-Item "$env:DIST_DIR/qdcm-loader/win-x64/*" "$root/win-x64" -Recurse -Force
-
       - name: Package artifacts
         uses: actions/upload-artifact@v4
         with:
           name: goodies-binaries
-          path: dist
+          path: dist/ui-arm64/MatebookGoodies.exe

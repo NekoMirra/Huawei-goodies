@@ -23,8 +23,13 @@ namespace GoodiesControl.Services
 
         public string FindExecutable()
         {
-            // For single-file apps, AppContext.BaseDirectory points to the extraction path; we want the actual exe location
-            var baseDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule!.FileName) ?? AppContext.BaseDirectory;
+            // For single-file apps, AppContext.BaseDirectory is the extraction path and contains bundled content.
+            var baseDir = AppContext.BaseDirectory;
+            // Fallback to exe directory if baseDir is empty or when running non-single-file
+            if (string.IsNullOrWhiteSpace(baseDir))
+            {
+                baseDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule!.FileName) ?? string.Empty;
+            }
             var ridOrder = RuntimeInformation.OSArchitecture == Architecture.Arm64
                 ? (_preferX64First ? new[] { "win-x64", "win-arm64" } : new[] { "win-arm64", "win-x64" })
                 : new[] { "win-x64", "win-arm64" };
