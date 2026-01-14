@@ -31,12 +31,9 @@ jobs:
           $d = $env:DIST_DIR
           $paths = @(
             "$d/kbd-detach/x64",
-            "$d/kbd-detach/arm64ec",
             "$d/qdcm-loader/win-x64",
-            "$d/qdcm-loader/win-arm64",
-            "ui/GoodiesControl/tools/win-arm64",
             "ui/GoodiesControl/tools/win-x64",
-            "$d/ui-arm64"
+            "$d/ui-x64"
           )
           foreach ($p in $paths) { New-Item -ItemType Directory -Path $p -Force | Out-Null }
 
@@ -51,18 +48,6 @@ jobs:
           copy kbd-detach.exe ..\%DIST_DIR%\kbd-detach\x64\
           copy KeyboardService.dll ..\%DIST_DIR%\kbd-detach\x64\
 
-      - name: Build kbd-detach (arm64EC via arm64 toolset)
-        shell: cmd
-        run: |
-          rem Hosted VS 不再提供 amd64_arm64ec 别名，使用 amd64_arm64 以设置 VSCMD_ARG_TGT_ARCH=arm64（makefile 会加 /arm64EC）
-          call "%VSPATH%\VC\Auxiliary\Build\vcvarsall.bat" amd64_arm64
-          cd kbd-detach
-          nmake /f makefile clean
-          nmake /f makefile
-          if not exist ..\%DIST_DIR%\kbd-detach\arm64ec mkdir ..\%DIST_DIR%\kbd-detach\arm64ec
-          copy kbd-detach.exe ..\%DIST_DIR%\kbd-detach\arm64ec\
-          copy KeyboardService.dll ..\%DIST_DIR%\kbd-detach\arm64ec\
-
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
@@ -74,28 +59,20 @@ jobs:
         run: |
           dotnet publish QdcmLoader.csproj -c Release -r win-x64 -p:PublishAot=true -p:SelfContained=true -p:PublishSingleFile=false -o "..\$env:DIST_DIR\qdcm-loader\win-x64"
 
-      - name: Publish qdcm-loader (arm64)
-        shell: pwsh
-        working-directory: qdcm-loader
-        run: |
-          dotnet publish QdcmLoader.csproj -c Release -r win-arm64 -p:SelfContained=true -p:PublishSingleFile=false -p:PublishAot=false -o "..\$env:DIST_DIR\qdcm-loader\win-arm64"
-
       - name: Stage tools into UI project
         shell: pwsh
         run: |
-          Copy-Item "$env:DIST_DIR/kbd-detach/arm64ec/*" "ui/GoodiesControl/tools/win-arm64" -Recurse -Force
           Copy-Item "$env:DIST_DIR/kbd-detach/x64/*" "ui/GoodiesControl/tools/win-x64" -Recurse -Force
-          Copy-Item "$env:DIST_DIR/qdcm-loader/win-arm64/*" "ui/GoodiesControl/tools/win-arm64" -Recurse -Force
           Copy-Item "$env:DIST_DIR/qdcm-loader/win-x64/*" "ui/GoodiesControl/tools/win-x64" -Recurse -Force
 
       - name: Publish UI (arm64 single-file)
         shell: pwsh
         working-directory: ui/GoodiesControl
         run: |
-          dotnet publish GoodiesControl.csproj -c Release -r win-arm64 -p:PublishSingleFile=true -p:SelfContained=true -o "..\..\$env:DIST_DIR\ui-arm64"
+          dotnet publish GoodiesControl.csproj -c Release -r win-x64 -p:PublishSingleFile=true -p:SelfContained=true -o "..\..\$env:DIST_DIR\ui-x64"
 
       - name: Package artifacts
         uses: actions/upload-artifact@v4
         with:
           name: goodies-binaries
-          path: dist/ui-arm64/MatebookGoodies.exe
+          path: dist/ui-x64/MatebookGoodies.exe
