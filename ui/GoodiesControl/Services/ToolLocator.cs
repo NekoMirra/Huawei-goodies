@@ -8,11 +8,17 @@ namespace GoodiesControl.Services
     {
         private readonly string _executable;
         private readonly string[] _requiredFiles;
+        private readonly bool _preferX64First;
 
-        public ToolLocator(string executable, params string[] requiredFiles)
+        public ToolLocator(string executable, params string[] requiredFiles) : this(executable, false, requiredFiles)
+        {
+        }
+
+        public ToolLocator(string executable, bool preferX64First, params string[] requiredFiles)
         {
             _executable = executable;
             _requiredFiles = requiredFiles;
+            _preferX64First = preferX64First;
         }
 
         public string FindExecutable()
@@ -20,7 +26,7 @@ namespace GoodiesControl.Services
             // For single-file apps, AppContext.BaseDirectory points to the extraction path; we want the actual exe location
             var baseDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule!.FileName) ?? AppContext.BaseDirectory;
             var ridOrder = RuntimeInformation.OSArchitecture == Architecture.Arm64
-                ? new[] { "win-arm64", "win-x64" }
+                ? (_preferX64First ? new[] { "win-x64", "win-arm64" } : new[] { "win-arm64", "win-x64" })
                 : new[] { "win-x64", "win-arm64" };
 
             foreach (var rid in ridOrder)

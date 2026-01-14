@@ -2,7 +2,8 @@ namespace GoodiesControl.Services
 {
     internal class QdcmCliService
     {
-        private readonly ToolLocator _toolLocator = new("qdcm-loader.exe", "qdcmlib.dll");
+        // Prefer x64 first because current qdcmlib.dll is x64-only; ARM64 build would throw BadImageFormat
+        private readonly ToolLocator _toolLocator = new("qdcm-loader.exe", true, "qdcmlib.dll");
 
         public Task ApplyPresetAsync(string preset)
         {
