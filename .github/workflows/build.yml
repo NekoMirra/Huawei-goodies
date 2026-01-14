@@ -70,12 +70,12 @@ jobs:
       - name: Publish qdcm-loader (x64 AOT)
         working-directory: qdcm-loader
         run: |
-          dotnet publish QdcmLoader.csproj -c Release -r win-x64 -p:PublishAot=true -p:SelfContained=true -p:PublishSingleFile=true -o ..\%DIST_DIR%\qdcm-loader\win-x64
+          dotnet publish QdcmLoader.csproj -c Release -r win-x64 -p:PublishAot=true -p:SelfContained=true -p:PublishSingleFile=false -o ..\%DIST_DIR%\qdcm-loader\win-x64
 
       - name: Publish qdcm-loader (arm64)
         working-directory: qdcm-loader
         run: |
-          dotnet publish QdcmLoader.csproj -c Release -r win-arm64 -p:SelfContained=true -p:PublishSingleFile=true -o ..\%DIST_DIR%\qdcm-loader\win-arm64
+          dotnet publish QdcmLoader.csproj -c Release -r win-arm64 -p:SelfContained=true -p:PublishSingleFile=true -p:PublishAot=false -o ..\%DIST_DIR%\qdcm-loader\win-arm64
 
       - name: Publish UI (arm64 single-file)
         working-directory: ui/GoodiesControl
