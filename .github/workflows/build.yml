@@ -16,6 +16,15 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Locate Visual Studio (for vcvarsall & nmake)
+        id: vswhere
+        shell: pwsh
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
+          if (-not $vs) { throw 'Visual Studio not found' }
+          "VSPATH=$vs" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "VS path: $vs"
+
       - name: Ensure dist folders
         run: |
           mkdir %DIST_DIR%\kbd-detach\x64
@@ -29,7 +38,7 @@ jobs:
       - name: Build kbd-detach (x64)
         shell: cmd
         run: |
-          call "%VSINSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat" amd64
+          call "%VSPATH%\VC\Auxiliary\Build\vcvarsall.bat" amd64
           cd kbd-detach
           nmake /f makefile clean
           nmake /f makefile
@@ -39,7 +48,7 @@ jobs:
       - name: Build kbd-detach (arm64ec)
         shell: cmd
         run: |
-          call "%VSINSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat" amd64_arm64ec
+          call "%VSPATH%\VC\Auxiliary\Build\vcvarsall.bat" amd64_arm64ec
           cd kbd-detach
           nmake /f makefile clean
           nmake /f makefile
