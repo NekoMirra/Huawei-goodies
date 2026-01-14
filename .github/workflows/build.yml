@@ -86,20 +86,17 @@ jobs:
           dotnet publish GoodiesControl.csproj -c Release -r win-arm64 -p:PublishSingleFile=true -p:SelfContained=true -o "..\..\$env:DIST_DIR\ui-arm64"
 
       - name: Copy tools into UI bundle
-        shell: cmd
+        shell: pwsh
         run: |
-          if not exist %DIST_DIR%\ui-arm64\tools\win-arm64 mkdir %DIST_DIR%\ui-arm64\tools\win-arm64
-          if not exist %DIST_DIR%\ui-arm64\tools\win-x64 mkdir %DIST_DIR%\ui-arm64\tools\win-x64
-          copy %DIST_DIR%\kbd-detach\arm64ec\kbd-detach.exe %DIST_DIR%\ui-arm64\tools\win-arm64\
-          copy %DIST_DIR%\kbd-detach\arm64ec\KeyboardService.dll %DIST_DIR%\ui-arm64\tools\win-arm64\
-          copy %DIST_DIR%\kbd-detach\x64\kbd-detach.exe %DIST_DIR%\ui-arm64\tools\win-x64\
-          copy %DIST_DIR%\kbd-detach\x64\KeyboardService.dll %DIST_DIR%\ui-arm64\tools\win-x64\
-          copy %DIST_DIR%\qdcm-loader\win-arm64\qdcm-loader.exe %DIST_DIR%\ui-arm64\tools\win-arm64\
-          copy %DIST_DIR%\qdcm-loader\win-arm64\qdcm-loader.dll %DIST_DIR%\ui-arm64\tools\win-arm64\
-          copy %DIST_DIR%\qdcm-loader\win-arm64\qdcmlib.dll %DIST_DIR%\ui-arm64\tools\win-arm64\
-          copy %DIST_DIR%\qdcm-loader\win-x64\qdcm-loader.exe %DIST_DIR%\ui-arm64\tools\win-x64\
-          copy %DIST_DIR%\qdcm-loader\win-x64\qdcm-loader.dll %DIST_DIR%\ui-arm64\tools\win-x64\
-          copy %DIST_DIR%\qdcm-loader\win-x64\qdcmlib.dll %DIST_DIR%\ui-arm64\tools\win-x64\
+          $root = "$env:DIST_DIR/ui-arm64/tools"
+          New-Item -ItemType Directory -Force -Path "$root/win-arm64" | Out-Null
+          New-Item -ItemType Directory -Force -Path "$root/win-x64" | Out-Null
+
+          Copy-Item "$env:DIST_DIR/kbd-detach/arm64ec/*" "$root/win-arm64" -Recurse -Force
+          Copy-Item "$env:DIST_DIR/kbd-detach/x64/*" "$root/win-x64" -Recurse -Force
+
+          Copy-Item "$env:DIST_DIR/qdcm-loader/win-arm64/*" "$root/win-arm64" -Recurse -Force
+          Copy-Item "$env:DIST_DIR/qdcm-loader/win-x64/*" "$root/win-x64" -Recurse -Force
 
       - name: Package artifacts
         uses: actions/upload-artifact@v4
