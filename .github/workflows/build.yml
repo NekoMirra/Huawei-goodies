@@ -50,10 +50,11 @@ jobs:
           copy kbd-detach.exe ..\%DIST_DIR%\kbd-detach\x64\
           copy KeyboardService.dll ..\%DIST_DIR%\kbd-detach\x64\
 
-      - name: Build kbd-detach (arm64ec)
+      - name: Build kbd-detach (arm64EC via arm64 toolset)
         shell: cmd
         run: |
-          call "%VSPATH%\VC\Auxiliary\Build\vcvarsall.bat" amd64_arm64ec
+          rem Hosted VS 不再提供 amd64_arm64ec 别名，使用 amd64_arm64 以设置 VSCMD_ARG_TGT_ARCH=arm64（makefile 会加 /arm64EC）
+          call "%VSPATH%\VC\Auxiliary\Build\vcvarsall.bat" amd64_arm64
           cd kbd-detach
           nmake /f makefile clean
           nmake /f makefile
